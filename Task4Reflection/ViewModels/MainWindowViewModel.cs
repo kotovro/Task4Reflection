@@ -2,17 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
-using System.Reactive;
-using System.Reflection;
 using Task4Reflection.Models;
 using System.IO;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using Avalonia.Interactivity;
 using System.Linq;
-using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
-using Avalonia.Data;
 using DynamicData;
 
 namespace Task4Reflection.ViewModels
@@ -24,15 +19,11 @@ namespace Task4Reflection.ViewModels
         private static readonly Regex _detoriationLevelRegex = new(@"^(?:\d{1,2}(?:\.\d+)?|0\.(?!0+$)\d+)$", RegexOptions.Compiled);
         private readonly Window _mainWindow;
         private string _assemblyPath = string.Empty;
-        private List<Type> _aircraftTypes = new();
-        private Type _selectedAircraftType;
-        private List<MethodInfo> _methods = new();
-        private MethodInfo _selectedMethod;
-        private object? _instance;
-        private ConstructorInfo _aircraftConstrInfo;
-        private ConstructorInfo _airportConstrInfo;
+        private List<string> _aircraftTypes = new();
+        private string _selectedAircraftType;
+        private List<string> _methods = new();
+        private string _selectedMethod;
         private string _result;
-        private Assembly _assembly;
 
 
         public System.Collections.ObjectModel.ObservableCollection<ConstructorParameter> AircraftConstructorParameters { get;  } = new();
@@ -40,7 +31,7 @@ namespace Task4Reflection.ViewModels
 
         public bool IsMethodSelected 
         {
-            get => _selectedMethod != null;
+            get => !string.IsNullOrEmpty(_selectedMethod);
         }
 
         public string AssemblyPath
@@ -49,7 +40,7 @@ namespace Task4Reflection.ViewModels
             set => this.RaiseAndSetIfChanged(ref _assemblyPath, value);
         }
 
-        public List<Type> AircraftTypes
+        public List<string> AircraftTypes
         {
             get => _aircraftTypes;
             set => this.RaiseAndSetIfChanged(ref _aircraftTypes, value);
@@ -58,64 +49,45 @@ namespace Task4Reflection.ViewModels
         public void AddInputsForAircraftFields()
         {
             AircraftConstructorParameters.Clear();
-            if (_selectedAircraftType == null)
+            if (string.IsNullOrEmpty(_selectedAircraftType))
                 return;
-            var constructors = ReflectionHelper.GetConstructors(SelectedAircraftType);
 
-            _aircraftConstrInfo = constructors.FirstOrDefault();
-            AircraftConstructorParameters.AddRange(
-                _aircraftConstrInfo.GetParameters()
-                .Select(prm => new ConstructorParameter
-                    {
-                        TargetType = prm.ParameterType,
-                        Name = $"{prm.Name} ({prm.ParameterType.ToString().Replace("System.", "")})",
-                    }
-                )
-            );
+            AircraftConstructorParameters.AddRange(ReflectionHelper.GetConstructorParameters(_assemblyPath, SelectedAircraftType));
             this.RaisePropertyChanged(nameof(AircraftConstructorParameters));            
         }
 
         public void AddInputsForAirportFields()
         {
-            if (_assembly == null)
+            if (string.IsNullOrEmpty(_assemblyPath))
                 return;
             
             AirportConstructorParameters.Clear();
 
-            var constructors = ReflectionHelper.GetConstructors(ReflectionHelper.GetAirportType(_assembly));
-          
-            _airportConstrInfo = constructors.FirstOrDefault();
-            AirportConstructorParameters.AddRange(
-                _airportConstrInfo.GetParameters()
-                .Select(prm => new ConstructorParameter 
-                    { 
-                        TargetType = prm.ParameterType, 
-                        Name = $"{prm.Name} ({prm.ParameterType.ToString().Replace("System.", "")})", 
-                    }
-                )
-            );
+            AirportConstructorParameters.AddRange(ReflectionHelper.GetConstructorParameters(_assemblyPath, "Airport"));
             this.RaisePropertyChanged(nameof(AirportConstructorParameters));           
         }
 
-        public Type SelectedAircraftType
+        public string SelectedAircraftType
         {
             get => _selectedAircraftType;
             set
             {
                 this.RaiseAndSetIfChanged(ref _selectedAircraftType, value);
                 AddInputsForAircraftFields();
+                LoadMethods();
+
             }
         }
 
         public bool IsAssemblySelected { get => !string.IsNullOrEmpty(_assemblyPath); }
 
-        public List<MethodInfo> Methods
+        public List<string> Methods
         {
             get => _methods;
             set => this.RaiseAndSetIfChanged(ref _methods, value);
         }
 
-        public MethodInfo SelectedMethod
+        public string SelectedMethod
         {
             get => _selectedMethod;
             set
@@ -172,8 +144,7 @@ namespace Task4Reflection.ViewModels
         {
             try
             {
-                _assembly = ReflectionHelper.LoadAssembly(AssemblyPath);
-                AircraftTypes = ReflectionHelper.GetAircraftsTypes(_assembly);
+                AircraftTypes = ReflectionHelper.GetAircraftsTypes(_assemblyPath);
                 AddInputsForAirportFields();
                 Result = "";
                 if (AircraftTypes.Count == 0)
@@ -190,27 +161,24 @@ namespace Task4Reflection.ViewModels
             }
         }
 
-        public void CreateInstance()
-        {
-            _aircraftConstrInfo.Invoke(AircraftConstructorParameters.Select(param => param.TryGetValue()).ToArray());
-        }
+
         private void LoadMethods()
         {
             if (SelectedAircraftType == null) return;
-            Methods = ReflectionHelper.GetMethods(SelectedAircraftType);
+            Methods = ReflectionHelper.GetMethods(_assemblyPath, SelectedAircraftType);
         }
 
         public void ExecuteMethod()
         {
-            try
-            {
-                object? result = ReflectionHelper.ExecuteMethod(_instance, SelectedMethod);
-                Result = $"Метод выполнен. Результат: {result ?? "void"}";
-            }
-            catch (Exception ex)
-            {
-                Result = $"Ошибка: {ex.InnerException?.Message ?? ex.Message}";
-            }
+            //try
+            //{
+            //    object? result = ReflectionHelper.ExecuteMethod(_instance, SelectedMethod);
+            //    Result = $"Метод выполнен. Результат: {result ?? "void"}";
+            //}
+            //catch (Exception ex)
+            //{
+            //    Result = $"Ошибка: {ex.InnerException?.Message ?? ex.Message}";
+            //}
         }
     }
 }
