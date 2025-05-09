@@ -170,15 +170,17 @@ namespace Task4Reflection.ViewModels
 
         public void ExecuteMethod()
         {
-            //try
-            //{
-            //    object? result = ReflectionHelper.ExecuteMethod(_instance, SelectedMethod);
-            //    Result = $"Метод выполнен. Результат: {result ?? "void"}";
-            //}
-            //catch (Exception ex)
-            //{
-            //    Result = $"Ошибка: {ex.InnerException?.Message ?? ex.Message}";
-            //}
+            try
+            {
+                var airportParams = AirportConstructorParameters.Select(p => p.TryGetValue()).ToArray();
+                var aircraftParams = AircraftConstructorParameters.Select(p => p.TryGetValue()).ToArray();
+                object? result = ReflectionHelper.ExecuteMethod(_assemblyPath, _selectedAircraftType, _selectedMethod, aircraftParams, airportParams);
+                Result = $"Метод выполнен. Результат: {result ?? "void"}";
+            }
+            catch (Exception ex)
+            {
+                Result = $"Ошибка: {ex.InnerException?.Message ?? ex.Message}";
+            }
         }
     }
 }
