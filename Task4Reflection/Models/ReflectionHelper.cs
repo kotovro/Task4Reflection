@@ -1,5 +1,4 @@
-﻿using FlightsAircrafts.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.IO;
 using System.Reflection;
@@ -22,9 +21,10 @@ namespace Task4Reflection.Models
         public static List<string> GetAircraftsTypes(string assemblyPath)
         {
             var assembly = LoadAssembly(assemblyPath);
+            var parent = assembly.GetTypes().First(t => t.Name.Equals("AbstractAircraft"));
             return assembly
                 .GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(AbstractAircraft)))
+                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(parent))
                 .Select(t => t.Name)
                 .ToList();
         }
@@ -71,8 +71,7 @@ namespace Task4Reflection.Models
                 .Invoke(aircraftParams);
 
             var airportInstance = assembly
-                .GetTypes()
-                .First(t => t.Name.Equals("Airport"))?
+                .GetTypes().First(t => t.Name.Equals("Airport"))?
                 .GetConstructor(airportParams.Select(prm => prm.GetType()).ToArray())?
                 .Invoke(airportParams);
 

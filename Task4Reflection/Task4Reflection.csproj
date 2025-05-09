@@ -25,8 +25,4 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
     <PackageReference Include="ReactiveUI" Version="20.1.63" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Task2Filghts\FlightsAircrafts\FlightsAircrafts\FlightsAircrafts.csproj" />
-  </ItemGroup>
 </Project>
