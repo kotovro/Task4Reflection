@@ -42,7 +42,7 @@
 			Grid.Row="1"
 			Grid.Column="1"
             ItemsSource="{Binding AircraftTypes}"
-            SelectedItem="{Binding SelectedType}"
+            SelectedItem="{Binding SelectedAircraftType}"
 			Margin="10">
 			<ComboBox.DataTemplates>
 				<DataTemplate DataType="reflection:MethodInfo">
