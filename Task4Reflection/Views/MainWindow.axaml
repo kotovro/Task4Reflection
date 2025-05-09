@@ -35,6 +35,7 @@
 			Content="Выбрать файл"
             Command="{Binding OpenDialog}"/>
 
+		
 		<TextBlock Grid.Row="1" Grid.Column="0" Margin="10" Text="Тип летального средства"/>
 		<ComboBox
 			IsEnabled="{Binding IsAssemblySelected}"
@@ -50,17 +51,30 @@
 			</ComboBox.DataTemplates>
 		</ComboBox>
 
-		<ItemsControl Grid.Row="2" ItemsSource="{Binding ConstructorParameters}">
+		<TextBlock Grid.Row="2" Grid.Column="0" Text="Парметры аэропорта" FontWeight="Bold" FontSize="18" Margin="0,0,0,10"/>
+		<ItemsControl Grid.Row="3" Grid.Column="0" ItemsSource="{Binding AirportConstructorParameters}">
 			<ItemsControl.ItemTemplate >
 				<DataTemplate>
 					<StackPanel>
-						<TextBlock Text="{Binding Name}"/>
+						<TextBlock Text="{Binding Name}" Margin="5, 0, 0, 0"/>
 						<TextBox Text="{Binding Value, Mode=TwoWay}" Margin="5" />
 					</StackPanel>
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
 		</ItemsControl>
-		
+
+		<TextBlock Grid.Row="2" Grid.Column="1" Text="Параметры летательного средства" FontWeight="Bold" FontSize="18" Margin="0,0,0,10"/>
+		<ItemsControl Grid.Row="3" Grid.Column="1" ItemsSource="{Binding AircraftConstructorParameters}">
+			<ItemsControl.ItemTemplate >
+				<DataTemplate>
+					<StackPanel>
+						<TextBlock Text="{Binding Name}" Margin="5, 0, 0, 0"/>
+						<TextBox Text="{Binding Value, Mode=TwoWay}" Margin="5" />
+					</StackPanel>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+
 
 		
 

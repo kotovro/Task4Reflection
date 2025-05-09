@@ -24,16 +24,18 @@ namespace Task4Reflection.ViewModels
         private readonly Window _mainWindow;
         private string _assemblyPath = string.Empty;
         private List<Type> _aircraftTypes = new();
-        private Type _selectedType;
+        private Type _selectedAircraftType;
         private List<MethodInfo> _methods = new();
         private MethodInfo _selectedMethod;
         private object? _instance;
         private ConstructorInfo _constrInfo;
         private string _result;
-        private string _selectedDLL;
+        private Type _airportType;
+        private Assembly _assembly;
 
 
-        public System.Collections.ObjectModel.ObservableCollection<ConstructorParameter> ConstructorParameters { get;  } = new();
+        public System.Collections.ObjectModel.ObservableCollection<ConstructorParameter> AircraftConstructorParameters { get;  } = new();
+        public System.Collections.ObjectModel.ObservableCollection<ConstructorParameter> AirportConstructorParameters { get; } = new();
 
         public bool IsMethodSelected 
         {
@@ -52,9 +54,9 @@ namespace Task4Reflection.ViewModels
             set => this.RaiseAndSetIfChanged(ref _aircraftTypes, value);
         }
 
-        public void AddInputsForFields()
+        public void AddInputsForAircraftFields()
         {
-            ConstructorParameters.Clear();
+            AircraftConstructorParameters.Clear();
             var constructors = ReflectionHelper.GetConstructors(SelectedType);
             if (constructors.Count == 1)
             {
@@ -62,26 +64,48 @@ namespace Task4Reflection.ViewModels
                 foreach (ParameterInfo prm in _constrInfo.GetParameters())
                 {
                     var item = new ConstructorParameter { TargetType = prm.ParameterType, Name = $"{prm.Name} ({prm.ParameterType.ToString().Replace("System.", "")})", };
-                    ConstructorParameters.Add(item);
+                    AircraftConstructorParameters.Add(item);
                 }
 
-                this.RaisePropertyChanged(nameof(ConstructorParameters));           
+                this.RaisePropertyChanged(nameof(AircraftConstructorParameters));           
+            }
+        }
+
+        public void AddInputsForAirportFields()
+        {
+            AirportConstructorParameters.Clear();
+            var constructors = ReflectionHelper.GetConstructors(ReflectionHelper.GetAirportType(_assembly));
+            if (constructors.Count == 1)
+            {
+                _constrInfo = constructors.ElementAt(0);
+                foreach (ParameterInfo prm in _constrInfo.GetParameters())
+                {
+                    var item = new ConstructorParameter { TargetType = prm.ParameterType, Name = $"{prm.Name} ({prm.ParameterType.ToString().Replace("System.", "")})", };
+                    AirportConstructorParameters.Add(item);
+                }
+
+                this.RaisePropertyChanged(nameof(AirportConstructorParameters));
             }
         }
 
         public Type SelectedType
         {
-            get => _selectedType;
+            get => _selectedAircraftType;
             set
             {
-                this.RaiseAndSetIfChanged(ref _selectedType, value);
-                AddInputsForFields();
+                this.RaiseAndSetIfChanged(ref _selectedAircraftType, value);
+                AddInputsForAircraftFields();
             }
         }
 
         public bool IsAssemblySelected
         {
-            get => !string.IsNullOrEmpty(_assemblyPath);
+            get
+            {
+                AddInputsForAirportFields();
+                return !string.IsNullOrEmpty(_assemblyPath);
+            } 
+
         }
 
         public List<MethodInfo> Methods
@@ -147,8 +171,8 @@ namespace Task4Reflection.ViewModels
         {
             try
             {
-                var assembly = ReflectionHelper.LoadAssembly(AssemblyPath);
-                AircraftTypes = ReflectionHelper.GetAircraftsTypes(assembly);
+                _assembly = ReflectionHelper.LoadAssembly(AssemblyPath);
+                AircraftTypes = ReflectionHelper.GetAircraftsTypes(_assembly);
                 Result = "Сборка загружена успешно!";
             }
             catch (Exception ex)
@@ -159,7 +183,7 @@ namespace Task4Reflection.ViewModels
 
         public void CreateInstance()
         {
-            _constrInfo.Invoke(ConstructorParameters.Select(param => param.TryGetValue()).ToArray());
+            _constrInfo.Invoke(AircraftConstructorParameters.Select(param => param.TryGetValue()).ToArray());
         }
         private void LoadMethods()
         {

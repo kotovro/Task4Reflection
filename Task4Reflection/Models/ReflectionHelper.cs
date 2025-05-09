@@ -30,6 +30,19 @@ namespace Task4Reflection.Models
             return airplaneTypes;
         }
 
+        public static Type GetAirportType(Assembly assembly)
+        {
+            Type[] allTypes = assembly.GetTypes();
+            Type airportType = null;
+
+            foreach (Type type in allTypes)
+            {
+                if (type.IsClass && !type.IsAbstract && type.FullName.Contains("Airport")) 
+                    airportType = type;
+            }
+            return airportType;
+        }
+
         public static List<MethodInfo> GetMethods(Type type)
         {
             MethodInfo[] allMethods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
