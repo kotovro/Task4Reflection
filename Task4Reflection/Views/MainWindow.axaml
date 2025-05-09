@@ -1,0 +1,105 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Task4Reflection.ViewModels"
+		xmlns:reflection="clr-namespace:System.Reflection;assembly=System.Runtime"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		x:Class="Task4Reflection.Views.MainWindow"
+		x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Task4Reflection">
+
+
+
+	<Grid Margin="15" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, *"
+		  ColumnDefinitions="Auto ,Auto, Auto, Auto, Auto, Auto, *">
+
+
+		<ScrollViewer Grid.Row="0" Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+			<TextBox
+				IsReadOnly="True"
+				Margin="10"
+				Text="{Binding AssemblyPath}"
+				TextWrapping="NoWrap"
+				AcceptsReturn="False"
+				MinWidth="250"
+				MaxWidth="400"
+				Watermark="Путь к DLL"
+				HorizontalAlignment="Left" />
+		</ScrollViewer>
+
+		<Button
+			Grid.Row="0"
+			Grid.Column="1"
+			Content="Выбрать файл"
+            Command="{Binding OpenDialog}"/>
+
+		<TextBlock Grid.Row="1" Grid.Column="0" Margin="10" Text="Тип летального средства"/>
+		<ComboBox
+			IsEnabled="{Binding IsAssemblySelected}"
+			Grid.Row="1"
+			Grid.Column="1"
+            ItemsSource="{Binding AircraftTypes}"
+            SelectedItem="{Binding SelectedType}"
+			Margin="10">
+			<ComboBox.DataTemplates>
+				<DataTemplate DataType="reflection:MethodInfo">
+					<TextBlock Text="{Binding Name}"/>
+				</DataTemplate>
+			</ComboBox.DataTemplates>
+		</ComboBox>
+
+		<ItemsControl Grid.Row="2" ItemsSource="{Binding ConstructorParameters}">
+			<ItemsControl.ItemTemplate >
+				<DataTemplate>
+					<StackPanel>
+						<TextBlock Text="{Binding Name}"/>
+						<TextBox Text="{Binding Value, Mode=TwoWay}" Margin="5" />
+					</StackPanel>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+		
+
+		
+
+		
+		
+		
+
+		<TextBlock Grid.Row="5" Grid.Column="0" Margin="10" Text="Метод летального средства"/>
+		<ComboBox
+				  IsEnabled="{Binding }"
+				  Grid.Row="5"
+				  Grid.Column="1"
+                  ItemsSource="{Binding Methods}"
+                  SelectedItem="{Binding SelectedMethod}"
+                  Margin="10">
+			<ComboBox.DataTemplates>
+				<DataTemplate DataType="reflection:MethodInfo">
+					<TextBlock Text="{Binding Name}"/>
+				</DataTemplate>
+			</ComboBox.DataTemplates>
+		</ComboBox>
+		
+		<Button Grid.Row="5"
+				Grid.Column="2"
+                Content="Выполнить метод"
+                Command="{Binding ExecuteMethod}"
+                HorizontalAlignment="Left"
+                Margin="10"
+				IsEnabled="{Binding IsMethodSelected}"/>
+		
+		<TextBox Grid.Row="6"
+				 
+                 Text="{Binding Result}"
+                 IsReadOnly="True"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 Margin="0,10"/>
+
+	</Grid>
+	
+   
+</Window>
